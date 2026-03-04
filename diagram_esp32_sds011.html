@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Схема подключений: ESP32, ILI9341, SDS011, BME280</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        h3 {
+            margin-top: 25px;
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .bus-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .bus-spi {
+            background: #6c5ce7;
+        }
+
+        .bus-uart {
+            background: #e17055;
+        }
+
+        .bus-i2c {
+            background: #00b894;
+        }
+
+        .bus-gpio {
+            background: #0984e3;
+        }
+
+        .bus-pwm {
+            background: #e84393;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>⛅ Блок-схема подключений: ESP32 ↔ ILI9341 ↔ SDS011 ↔ BME280</h1>
+
+        <div class="mermaid">
+            graph LR
+            subgraph ESP32["🟢 ESP32 Dev Module"]
+            direction TB
+            P23["GPIO 23<br />MOSI"]
+            P19["GPIO 19<br />MISO"]
+            P18["GPIO 18<br />SCK"]
+            P14["GPIO 14<br />TFT_CS"]
+            P5["GPIO 5<br />TFT_DC"]
+            P13["GPIO 13<br />TFT_BL"]
+            P3["GPIO 3 RXD<br />TOUCH_CS"]
+            P15["GPIO 15<br />TOUCH_IRQ"]
+            EN["EN / RST"]
+            P16["GPIO 16<br />UART1 RX"]
+            P17["GPIO 17<br />UART1 TX"]
+            P21["GPIO 21<br />I2C SDA"]
+            P22["GPIO 22<br />I2C SCL"]
+            V33["3.3V"]
+            V5["5V"]
+            GND["GND"]
+            end
+
+            subgraph DISP["🖥️ ILI9341 + XPT2046<br />(MSP2402)"]
+            direction TB
+            D_VCC["VCC"]
+            D_GND["GND"]
+            D_CS["CS"]
+            D_RST["RESET"]
+            D_DC["DC / RS"]
+            D_MOSI["SDI / MOSI"]
+            D_SCK["SCK"]
+            D_LED["LED"]
+            D_MISO["SDO / MISO"]
+            T_CLK["T_CLK"]
+            T_CS["T_CS"]
+            T_DIN["T_DIN"]
+            T_DO["T_DO"]
+            T_IRQ["T_IRQ"]
+            end
+
+            subgraph SDS["🌫️ SDS011<br />PM2.5 / PM10"]
+            direction TB
+            S_VCC["VCC"]
+            S_GND["GND"]
+            S_TX["TX"]
+            S_RX["RX"]
+            end
+
+            subgraph BME["🌡️ BME280<br />Темп/Влаж/Давл"]
+            direction TB
+            B_VCC["VCC"]
+            B_GND["GND"]
+            B_SCL["SCL"]
+            B_SDA["SDA"]
+            end
+
+            %% === Питание ===
+            V33 -.->|"3.3V"| D_VCC
+            GND -.->|"GND"| D_GND
+            V5 -.->|"5V"| S_VCC
+            GND -.->|"GND"| S_GND
+            V33 -.->|"3.3V"| B_VCC
+            GND -.->|"GND"| B_GND
+
+            %% === SPI дисплей ILI9341 ===
+            P14 -->|"Chip Select"| D_CS
+            EN -->|"Reset"| D_RST
+            P5 -->|"Data/Command"| D_DC
+            P23 -->|"SPI MOSI"| D_MOSI
+            P18 -->|"SPI CLK"| D_SCK
+            P13 -->|"PWM подсветка"| D_LED
+            P19 -->|"SPI MISO"| D_MISO
+
+            %% === SPI тачскрин XPT2046 ===
+            P18 -->|"SPI CLK"| T_CLK
+            P3 -->|"Touch CS"| T_CS
+            P23 -->|"SPI MOSI"| T_DIN
+            P19 -->|"SPI MISO"| T_DO
+            P15 -->|"IRQ"| T_IRQ
+
+            %% === UART SDS011 ===
+            S_TX ==>|"UART1 RX<br />9600 бод"| P16
+            P17 ==>|"UART1 TX<br />9600 бод"| S_RX
+
+            %% === I2C BME280 ===
+            P21 <-->|"I2C SDA"| B_SDA
+                P22 -->|"I2C SCL"| B_SCL
+
+                %% === Стили ===
+                style ESP32 fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#155724
+                style DISP fill:#cce5ff,stroke:#007bff,stroke-width:2px,color:#004085
+                style SDS fill:#f8d7da,stroke:#dc3545,stroke-width:2px,color:#721c24
+                style BME fill:#e2e3e5,stroke:#adb5bd,stroke-width:2px,color:#383d41
+
+                style P23 fill:#fff,color:#333
+                style P19 fill:#fff,color:#333
+                style P18 fill:#fff,color:#333
+                style P14 fill:#fff,color:#333
+                style P5 fill:#fff,color:#333
+                style P13 fill:#fff,color:#333
+                style P3 fill:#fff,color:#333
+                style P15 fill:#fff,color:#333
+                style EN fill:#fff,color:#333
+                style P16 fill:#fff,color:#333
+                style P17 fill:#fff,color:#333
+                style P21 fill:#fff,color:#333
+                style P22 fill:#fff,color:#333
+                style V33 fill:#ffeeba,color:#856404
+                style V5 fill:#f5c6cb,color:#721c24
+                style GND fill:#e2e3e5,color:#383d41
+        </div>
+
+        <div style="margin-top: 40px;">
+            <h3>🖥️ ILI9341 + XPT2046 → ESP32 (SPI шина)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Пин модуля</th>
+                        <th>ESP32 GPIO</th>
+                        <th>Сигнал</th>
+                        <th>Шина</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>VCC</td>
+                        <td>3.3V</td>
+                        <td>Питание</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>GND</td>
+                        <td>GND</td>
+                        <td>Земля</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>CS</td>
+                        <td><strong>GPIO 14</strong></td>
+                        <td>TFT_CS</td>
+                        <td><span class="bus-tag bus-spi">SPI</span></td>
+                    </tr>
+                    <tr>
+                        <td>RESET</td>
+                        <td><strong>EN (RST)</strong></td>
+                        <td>TFT_RST</td>
+                        <td><span class="bus-tag bus-gpio">GPIO</span></td>
+                    </tr>
+                    <tr>
+                        <td>DC / RS</td>
+                        <td><strong>GPIO 5</strong></td>
+                        <td>TFT_DC</td>
+                        <td><span class="bus-tag bus-spi">SPI</span></td>
+                    </tr>
+                    <tr>
+                        <td>SDI (MOSI)</td>
+                        <td><strong>GPIO 23</strong></td>
+                        <td>SPI MOSI</td>
+                        <td><span class="bus-tag bus-spi">SPI</span></td>
+                    </tr>
+                    <tr>
+                        <td>SCK</td>
+                        <td><strong>GPIO 18</strong></td>
+                        <td>SPI CLK</td>
+                        <td><span class="bus-tag bus-spi">SPI</span></td>
+                    </tr>
+                    <tr>
+                        <td>LED</td>
+                        <td><strong>GPIO 13</strong></td>
+                        <td>TFT_BL (PWM)</td>
+                        <td><span class="bus-tag bus-pwm">PWM</span></td>
+                    </tr>
+                    <tr>
+                        <td>SDO (MISO)</td>
+                        <td><strong>GPIO 19</strong></td>
+                        <td>SPI MISO</td>
+                        <td><span class="bus-tag bus-spi">SPI</span></td>
+                    </tr>
+                    <tr>
+                        <td>T_CLK</td>
+                        <td><strong>GPIO 18</strong></td>
+                        <td>SPI CLK (общий)</td>
+                        <td><span class="bus-tag bus-spi">SPI</span></td>
+                    </tr>
+                    <tr>
+                        <td>T_CS</td>
+                        <td><strong>GPIO 3 (RXD)</strong></td>
+                        <td>TOUCH_CS</td>
+                        <td><span class="bus-tag bus-spi">SPI</span></td>
+                    </tr>
+                    <tr>
+                        <td>T_DIN</td>
+                        <td><strong>GPIO 23</strong></td>
+                        <td>SPI MOSI (общий)</td>
+                        <td><span class="bus-tag bus-spi">SPI</span></td>
+                    </tr>
+                    <tr>
+                        <td>T_DO</td>
+                        <td><strong>GPIO 19</strong></td>
+                        <td>SPI MISO (общий)</td>
+                        <td><span class="bus-tag bus-spi">SPI</span></td>
+                    </tr>
+                    <tr>
+                        <td>T_IRQ</td>
+                        <td><strong>GPIO 15</strong></td>
+                        <td>TOUCH_IRQ</td>
+                        <td><span class="bus-tag bus-gpio">GPIO</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🌫️ SDS011 → ESP32 (UART1)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Пин модуля</th>
+                        <th>ESP32 GPIO</th>
+                        <th>Сигнал</th>
+                        <th>Шина</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>VCC</td>
+                        <td>5V</td>
+                        <td>Питание</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>GND</td>
+                        <td>GND</td>
+                        <td>Земля</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>TX</td>
+                        <td><strong>GPIO 16</strong></td>
+                        <td>SDS011_RX</td>
+                        <td><span class="bus-tag bus-uart">UART1</span></td>
+                    </tr>
+                    <tr>
+                        <td>RX</td>
+                        <td><strong>GPIO 17</strong></td>
+                        <td>SDS011_TX</td>
+                        <td><span class="bus-tag bus-uart">UART1</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🌡️ BME280 → ESP32 (I2C шина)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Пин модуля</th>
+                        <th>ESP32 GPIO</th>
+                        <th>Сигнал</th>
+                        <th>Шина</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>VCC</td>
+                        <td>3.3V</td>
+                        <td>Питание</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>GND</td>
+                        <td>GND</td>
+                        <td>Земля</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>SDA</td>
+                        <td><strong>GPIO 21</strong></td>
+                        <td>I2C Data</td>
+                        <td><span class="bus-tag bus-i2c">I2C</span></td>
+                    </tr>
+                    <tr>
+                        <td>SCL</td>
+                        <td><strong>GPIO 22</strong></td>
+                        <td>I2C Clock</td>
+                        <td><span class="bus-tag bus-i2c">I2C</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="btn-container">
+            <button class="btn" onclick="window.print()">🖨️ Распечатать / Сохранить в PDF</button>
+        </div>
+    </div>
+
+</body>
+
+</html>
