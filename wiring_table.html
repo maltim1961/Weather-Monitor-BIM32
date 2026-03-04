@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Monitor BIM32 v4.0 — Таблица соединений</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a2e;
+            padding: 20px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 5mm;
+                font-size: 9pt;
+            }
+            .no-print { display: none !important; }
+            .page-break { page-break-before: always; }
+            table { font-size: 8pt; }
+            h1 { font-size: 16pt; }
+            h2 { font-size: 12pt; }
+            .header { padding: 10px !important; }
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            border-radius: 12px;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 800;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            padding-left: 10px;
+            border-left: 4px solid;
+        }
+
+        h2.display { border-color: #6c5ce7; }
+        h2.sensors { border-color: #00b894; }
+        h2.comms { border-color: #e17055; }
+        h2.sound { border-color: #fdcb6e; }
+        h2.buttons { border-color: #0984e3; }
+        h2.leds { border-color: #e84393; }
+        h2.i2c { border-color: #00cec9; }
+        h2.notes { border-color: #636e72; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 6px;
+        }
+
+        thead th {
+            background: #2d3436;
+            color: white;
+            font-weight: 600;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody td {
+            padding: 6px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.88em;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tbody tr:hover {
+            background: #edf2ff;
+        }
+
+        .pin {
+            font-weight: 700;
+            color: #d63031;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .module {
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .signal {
+            color: #6c5ce7;
+            font-weight: 500;
+        }
+
+        .bus-tag {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 700;
+            color: white;
+            margin-left: 4px;
+        }
+
+        .bus-spi { background: #6c5ce7; }
+        .bus-i2c { background: #00b894; }
+        .bus-uart { background: #e17055; }
+        .bus-gpio { background: #0984e3; }
+        .bus-adc { background: #fdcb6e; color: #2d3436; }
+        .bus-pwm { background: #e84393; }
+        .bus-1wire { background: #636e72; }
+
+        .note-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+
+        .note-box strong {
+            color: #856404;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8em;
+        }
+
+        .print-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(108,92,231,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108,92,231,0.5);
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-col { grid-template-columns: 1fr; }
+        }
+
+        @media print {
+            .two-col { grid-template-columns: 1fr 1fr; }
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.8em;
+            color: #636e72;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>⛅ Weather Monitor BIM32 v4.0</h1>
+    <p>Таблица соединений — ESP32 Dev Module</p>
+</div>
+
+<div class="legend no-print">
+    <div class="legend-item"><span class="bus-tag bus-spi">SPI</span> SPI шина</div>
+    <div class="legend-item"><span class="bus-tag bus-i2c">I2C</span> I2C шина</div>
+    <div class="legend-item"><span class="bus-tag bus-uart">UART</span> Последовательный порт</div>
+    <div class="legend-item"><span class="bus-tag bus-gpio">GPIO</span> Цифровой вход/выход</div>
+    <div class="legend-item"><span class="bus-tag bus-adc">ADC</span> Аналоговый вход</div>
+    <div class="legend-item"><span class="bus-tag bus-pwm">PWM</span> ШИМ выход</div>
+    <div class="legend-item"><span class="bus-tag bus-1wire">1-Wire</span> Однопроводная шина</div>
+</div>
+
+<!-- ═══════════════ ДИСПЛЕЙ ILI9341 + XPT2046 ═══════════════ -->
+<div class="section">
+    <h2 class="display">🖥️ Дисплей ILI9341 + тачскрин XPT2046 (MSP2402)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Пин модуля</th>
+                <th>ESP32 GPIO</th>
+                <th>Сигнал</th>
+                <th>Шина</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">VCC</td><td class="pin">3.3V</td><td class="signal">Питание</td><td>—</td><td>3.3В</td></tr>
+            <tr><td class="module">GND</td><td class="pin">GND</td><td class="signal">Земля</td><td>—</td><td></td></tr>
+            <tr><td class="module">CS</td><td class="pin">GPIO 14</td><td class="signal">TFT_CS</td><td><span class="bus-tag bus-spi">SPI</span></td><td>Chip Select дисплея</td></tr>
+            <tr><td class="module">RESET</td><td class="pin">EN (RST)</td><td class="signal">TFT_RST</td><td><span class="bus-tag bus-gpio">GPIO</span></td><td>Сброс (подключён к сбросу ESP32)</td></tr>
+            <tr><td class="module">DC / RS</td><td class="pin">GPIO 5</td><td class="signal">TFT_DC</td><td><span class="bus-tag bus-spi">SPI</span></td><td>Data/Command</td></tr>
+            <tr><td class="module">SDI (MOSI)</td><td class="pin">GPIO 23</td><td class="signal">SPI MOSI</td><td><span class="bus-tag bus-spi">SPI</span></td><td>Общий с MP3 TX → разделены по времени</td></tr>
+            <tr><td class="module">SCK</td><td class="pin">GPIO 18</td><td class="signal">SPI CLK</td><td><span class="bus-tag bus-spi">SPI</span></td><td>SPI тактовый сигнал</td></tr>
+            <tr><td class="module">LED</td><td class="pin">GPIO 13</td><td class="signal">TFT_BL</td><td><span class="bus-tag bus-pwm">PWM</span></td><td>Подсветка (ШИМ)</td></tr>
+            <tr><td class="module">SDO (MISO)</td><td class="pin">GPIO 19</td><td class="signal">SPI MISO</td><td><span class="bus-tag bus-spi">SPI</span></td><td>Общий с MP3 RX</td></tr>
+            <tr><td class="module">T_CLK</td><td class="pin">GPIO 18</td><td class="signal">SPI CLK</td><td><span class="bus-tag bus-spi">SPI</span></td><td>Общий с SCK дисплея</td></tr>
+            <tr><td class="module">T_CS</td><td class="pin">GPIO 3 (RXD)</td><td class="signal">TOUCH_CS</td><td><span class="bus-tag bus-spi">SPI</span></td><td>Chip Select тачскрина</td></tr>
+            <tr><td class="module">T_DIN</td><td class="pin">GPIO 23</td><td class="signal">SPI MOSI</td><td><span class="bus-tag bus-spi">SPI</span></td><td>Общий MOSI</td></tr>
+            <tr><td class="module">T_DO</td><td class="pin">GPIO 19</td><td class="signal">SPI MISO</td><td><span class="bus-tag bus-spi">SPI</span></td><td>Общий MISO</td></tr>
+            <tr><td class="module">T_IRQ</td><td class="pin">GPIO 15</td><td class="signal">TOUCH_IRQ</td><td><span class="bus-tag bus-gpio">GPIO</span></td><td>Прерывание тачскрина</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════ NEXTION DISPLAY ═══════════════ -->
+<div class="section">
+    <h2 class="display">🖥️ Дисплей Nextion (альтернатива ILI9341)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Пин модуля</th>
+                <th>ESP32 GPIO</th>
+                <th>Сигнал</th>
+                <th>Шина</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">VCC</td><td class="pin">5V</td><td class="signal">Питание</td><td>—</td><td>5В</td></tr>
+            <tr><td class="module">GND</td><td class="pin">GND</td><td class="signal">Земля</td><td>—</td><td></td></tr>
+            <tr><td class="module">TX</td><td class="pin">GPIO 33</td><td class="signal">NEXTION_RX</td><td><span class="bus-tag bus-uart">UART</span></td><td>Serial1 RX (от Nextion)</td></tr>
+            <tr><td class="module">RX</td><td class="pin">GPIO 32</td><td class="signal">NEXTION_TX</td><td><span class="bus-tag bus-uart">UART</span></td><td>Serial1 TX (к Nextion)</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="two-col">
+
+<!-- ═══════════════ ДАТЧИКИ I2C ═══════════════ -->
+<div class="section">
+    <h2 class="i2c">📡 Датчики I2C (общая шина)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Датчик</th>
+                <th>Адрес</th>
+                <th>Измеряет</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">BME280</td><td class="pin">0x76 / 0x77</td><td>Темп., влажн., давл.</td></tr>
+            <tr><td class="module">BMP180</td><td class="pin">0x77</td><td>Темп., давление</td></tr>
+            <tr><td class="module">SHT21</td><td class="pin">0x40</td><td>Темп., влажность</td></tr>
+            <tr><td class="module">BME680</td><td class="pin">0x77</td><td>Темп., влажн., давл., IAQ</td></tr>
+            <tr><td class="module">MAX44009</td><td class="pin">0x4A</td><td>Освещённость (lux)</td></tr>
+            <tr><td class="module">BH1750</td><td class="pin">0x23</td><td>Освещённость (lux)</td></tr>
+            <tr><td class="module">DS3231</td><td class="pin">0x68</td><td>Часы реального времени</td></tr>
+            <tr><td class="module">PCF8574</td><td class="pin">0x20</td><td>Порт-расширитель (8 вых.)</td></tr>
+        </tbody>
+    </table>
+    <table>
+        <thead>
+            <tr>
+                <th>I2C линия</th>
+                <th>ESP32 GPIO</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">SDA</td><td class="pin">GPIO 21</td><td>I2C данные (по умолч.)</td></tr>
+            <tr><td class="module">SCL</td><td class="pin">GPIO 22</td><td>I2C тактирование (по умолч.)</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════ ПРОЧИЕ ДАТЧИКИ ═══════════════ -->
+<div class="section">
+    <h2 class="sensors">🌡️ Датчики (GPIO / 1-Wire / ADC)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Датчик</th>
+                <th>ESP32 GPIO</th>
+                <th>Шина</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">DHT22</td><td class="pin">GPIO 4</td><td><span class="bus-tag bus-gpio">GPIO</span></td><td>Темп. + влажность</td></tr>
+            <tr><td class="module">DS18B20</td><td class="pin">GPIO 27</td><td><span class="bus-tag bus-1wire">1-Wire</span></td><td>Температура (12 бит)</td></tr>
+            <tr><td class="module">Фоторезистор</td><td class="pin">GPIO 36 (VP)</td><td><span class="bus-tag bus-adc">ADC</span></td><td>Аналоговый датчик света</td></tr>
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+<!-- ═══════════════ SDS011 ═══════════════ -->
+<div class="section">
+    <h2 class="sensors">🌫️ Датчик пыли SDS011 (PM2.5 / PM10)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Пин модуля</th>
+                <th>ESP32 GPIO</th>
+                <th>Сигнал</th>
+                <th>Шина</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">VCC</td><td class="pin">5V</td><td class="signal">Питание</td><td>—</td><td>5В</td></tr>
+            <tr><td class="module">GND</td><td class="pin">GND</td><td class="signal">Земля</td><td>—</td><td></td></tr>
+            <tr><td class="module">TX</td><td class="pin">GPIO 16</td><td class="signal">SDS011_RX</td><td><span class="bus-tag bus-uart">UART</span></td><td>Serial1 (UART1) RX — данные от SDS011</td></tr>
+            <tr><td class="module">RX</td><td class="pin">GPIO 17</td><td class="signal">SDS011_TX</td><td><span class="bus-tag bus-uart">UART</span></td><td>Serial1 (UART1) TX — команды к SDS011</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════ HC12 ═══════════════ -->
+<div class="section">
+    <h2 class="comms">📻 Беспроводной модуль HC-12 (433 МГц)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Пин модуля</th>
+                <th>ESP32 GPIO</th>
+                <th>Сигнал</th>
+                <th>Шина</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">VCC</td><td class="pin">5V</td><td class="signal">Питание</td><td>—</td><td>3.3–5.5В</td></tr>
+            <tr><td class="module">GND</td><td class="pin">GND</td><td class="signal">Земля</td><td>—</td><td></td></tr>
+            <tr><td class="module">TX</td><td class="pin">GPIO 16</td><td class="signal">Serial2 RX</td><td><span class="bus-tag bus-uart">UART</span></td><td>Serial2 (по умолч. GPIO 16) — данные от HC12</td></tr>
+            <tr><td class="module">RX</td><td class="pin">GPIO 17</td><td class="signal">Serial2 TX</td><td><span class="bus-tag bus-uart">UART</span></td><td>Serial2 (по умолч. GPIO 17) — команды к HC12</td></tr>
+            <tr><td class="module">SET</td><td class="pin">GPIO 25</td><td class="signal">SET_HC12</td><td><span class="bus-tag bus-gpio">GPIO</span></td><td>HIGH = норм., LOW = AT-режим</td></tr>
+        </tbody>
+    </table>
+    <div class="note-box" style="margin-top: 6px;">
+        <strong>⚠️ Внимание:</strong> HC-12 использует Serial2 (GPIO 16/17 по умолч.), а SDS011 — Serial1 (UART1, назначен аппаратно на GPIO 16/17 через <code>sdsSerial.begin(9600, SERIAL_8N1, 16, 17)</code>).
+        Оба используют одни и те же GPIO! Убедитесь, что они разведены на разные пины или используются попеременно. В текущем коде Serial2 инициализируется на тех же пинах, что может вызвать конфликт.
+    </div>
+</div>
+
+<div class="two-col">
+
+<!-- ═══════════════ MP3 / DFPlayer ═══════════════ -->
+<div class="section">
+    <h2 class="sound">🔊 MP3 плеер (DFPlayer Mini)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Пин модуля</th>
+                <th>ESP32 GPIO</th>
+                <th>Сигнал</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">VCC</td><td class="pin">5V</td><td class="signal">Питание</td><td>5В</td></tr>
+            <tr><td class="module">GND</td><td class="pin">GND</td><td class="signal">Земля</td><td></td></tr>
+            <tr><td class="module">RX</td><td class="pin">GPIO 23</td><td class="signal">MP3_TX</td><td>Через Serial (9600 бод)</td></tr>
+            <tr><td class="module">TX</td><td class="pin">GPIO 19</td><td class="signal">MP3_RX</td><td>Через Serial</td></tr>
+            <tr><td class="module">BUSY</td><td class="pin">GPIO 39 (VN)</td><td class="signal">MP3_BUSY</td><td>Флаг занятости (input only)</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════ КНОПКИ ═══════════════ -->
+<div class="section">
+    <h2 class="buttons">🔘 Кнопки</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Кнопка</th>
+                <th>ESP32 GPIO</th>
+                <th>Режим</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">Settings (Boot)</td><td class="pin">GPIO 0</td><td>INPUT</td><td>Встроенная кнопка Boot</td></tr>
+            <tr><td class="module">Display 1</td><td class="pin">GPIO 34</td><td>INPUT</td><td>Только вход (input only)</td></tr>
+            <tr><td class="module">Display 2</td><td class="pin">GPIO 35</td><td>INPUT</td><td>Только вход (input only)</td></tr>
+            <tr><td class="module">Alarm</td><td class="pin">GPIO 26</td><td>INPUT</td><td>Кнопка будильника</td></tr>
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+<!-- ═══════════════ WS2812B ═══════════════ -->
+<div class="section">
+    <h2 class="leds">💡 Светодиодные дисплеи WS2812B</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Дисплей</th>
+                <th>ESP32 GPIO</th>
+                <th>Канал RMT</th>
+                <th>Сигнал</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">WS2812B Дисплей 1</td><td class="pin">GPIO 33</td><td>RMT_CHANNEL_0</td><td class="signal">WS2812_1_DAT</td><td>7-сегментные часы (Data In)</td></tr>
+            <tr><td class="module">WS2812B Дисплей 2</td><td class="pin">GPIO 12</td><td>RMT_CHANNEL_1</td><td class="signal">WS2812_2_DAT</td><td>7-сегментные часы (Data In)</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════ SERIAL MONITOR ═══════════════ -->
+<div class="section">
+    <h2 class="comms">🔌 Последовательные порты (UART)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Порт</th>
+                <th>TX GPIO</th>
+                <th>RX GPIO</th>
+                <th>Скорость</th>
+                <th>Назначение</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">Serial (UART0)</td><td class="pin">GPIO 1 (TX0)</td><td class="pin">— (не исп.)</td><td>115200</td><td>Отладка + DFPlayer (перекл. на 9600)</td></tr>
+            <tr><td class="module">Serial1 (UART1)</td><td class="pin">GPIO 17</td><td class="pin">GPIO 16</td><td>9600</td><td>SDS011 датчик пыли</td></tr>
+            <tr><td class="module">Serial2 (UART2)</td><td class="pin">GPIO 17*</td><td class="pin">GPIO 16*</td><td>9600</td><td>HC-12 беспроводной модуль</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════ СВОДНАЯ ТАБЛИЦА ПИНОВ ═══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+    <h2 class="notes">📋 Сводная таблица GPIO ESP32</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>GPIO</th>
+                <th>Назначение</th>
+                <th>Направление</th>
+                <th>Шина</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="pin">GPIO 0</td><td>Кнопка Settings (Boot)</td><td>INPUT</td><td><span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">GPIO 1</td><td>Serial TX (отладка + DFPlayer)</td><td>OUTPUT</td><td><span class="bus-tag bus-uart">UART</span></td></tr>
+            <tr><td class="pin">GPIO 3</td><td>XPT2046 Touch CS (T_CS)</td><td>OUTPUT</td><td><span class="bus-tag bus-spi">SPI</span></td></tr>
+            <tr><td class="pin">GPIO 4</td><td>DHT22 — температура / влажность</td><td>I/O</td><td><span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">GPIO 5</td><td>ILI9341 DC (Data/Command)</td><td>OUTPUT</td><td><span class="bus-tag bus-spi">SPI</span></td></tr>
+            <tr><td class="pin">GPIO 12</td><td>WS2812B дисплей 2 DAT</td><td>OUTPUT</td><td><span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">GPIO 13</td><td>ILI9341 подсветка (LED)</td><td>OUTPUT</td><td><span class="bus-tag bus-pwm">PWM</span></td></tr>
+            <tr><td class="pin">GPIO 14</td><td>ILI9341 CS (Chip Select)</td><td>OUTPUT</td><td><span class="bus-tag bus-spi">SPI</span></td></tr>
+            <tr><td class="pin">GPIO 15</td><td>XPT2046 Touch IRQ</td><td>INPUT</td><td><span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">GPIO 16</td><td>SDS011 TX → ESP RX (UART1) / HC-12</td><td>INPUT</td><td><span class="bus-tag bus-uart">UART</span></td></tr>
+            <tr><td class="pin">GPIO 17</td><td>SDS011 RX ← ESP TX (UART1) / HC-12</td><td>OUTPUT</td><td><span class="bus-tag bus-uart">UART</span></td></tr>
+            <tr><td class="pin">GPIO 18</td><td>SPI CLK (дисплей + тачскрин)</td><td>OUTPUT</td><td><span class="bus-tag bus-spi">SPI</span></td></tr>
+            <tr><td class="pin">GPIO 19</td><td>SPI MISO / MP3 TX</td><td>INPUT</td><td><span class="bus-tag bus-spi">SPI</span></td></tr>
+            <tr><td class="pin">GPIO 21</td><td>I2C SDA (все I2C датчики)</td><td>I/O</td><td><span class="bus-tag bus-i2c">I2C</span></td></tr>
+            <tr><td class="pin">GPIO 22</td><td>I2C SCL (все I2C датчики)</td><td>OUTPUT</td><td><span class="bus-tag bus-i2c">I2C</span></td></tr>
+            <tr><td class="pin">GPIO 23</td><td>SPI MOSI / MP3 RX</td><td>OUTPUT</td><td><span class="bus-tag bus-spi">SPI</span></td></tr>
+            <tr><td class="pin">GPIO 25</td><td>HC-12 SET (AT-режим)</td><td>OUTPUT</td><td><span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">GPIO 26</td><td>Кнопка Alarm</td><td>INPUT</td><td><span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">GPIO 27</td><td>DS18B20 — температура</td><td>I/O</td><td><span class="bus-tag bus-1wire">1-Wire</span></td></tr>
+            <tr><td class="pin">GPIO 32</td><td>Nextion TX (Serial1)</td><td>OUTPUT</td><td><span class="bus-tag bus-uart">UART</span></td></tr>
+            <tr><td class="pin">GPIO 33</td><td>Nextion RX / WS2812B дисплей 1</td><td>I/O</td><td><span class="bus-tag bus-uart">UART</span> <span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">GPIO 34</td><td>Кнопка Display 1</td><td>INPUT</td><td><span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">GPIO 35</td><td>Кнопка Display 2</td><td>INPUT</td><td><span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">GPIO 36 (VP)</td><td>Фоторезистор (аналоговый)</td><td>INPUT</td><td><span class="bus-tag bus-adc">ADC</span></td></tr>
+            <tr><td class="pin">GPIO 39 (VN)</td><td>MP3 BUSY</td><td>INPUT</td><td><span class="bus-tag bus-gpio">GPIO</span></td></tr>
+            <tr><td class="pin">EN</td><td>ILI9341 RESET</td><td>—</td><td>—</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════ ПИТАНИЕ ═══════════════ -->
+<div class="section">
+    <h2 class="notes">🔋 Питание</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Линия</th>
+                <th>Потребители</th>
+                <th>Примечание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="module">3.3V</td><td>ILI9341, все I2C датчики, DHT22, DS18B20, фоторезистор</td><td>Через стабилизатор ESP32</td></tr>
+            <tr><td class="module">5V</td><td>Nextion, DFPlayer, SDS011, HC-12, WS2812B</td><td>Внешнее питание 5В</td></tr>
+            <tr><td class="module">GND</td><td>Общая земля для всех модулей</td><td>Обязательно объединить все земли</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════ ПРИМЕЧАНИЯ ═══════════════ -->
+<div class="section">
+    <h2 class="notes">📌 Важные примечания</h2>
+    <div class="note-box">
+        <strong>1. Конфигурация TFT_eSPI:</strong> Пины дисплея ILI9341 задаются в файле <code>User_Setup.h</code> библиотеки TFT_eSPI, а не в коде проекта.<br><br>
+        <strong>2. I2C шина:</strong> Все I2C устройства подключены параллельно к GPIO 21 (SDA) и GPIO 22 (SCL). Необходимы подтягивающие резисторы 4.7 кОм к 3.3В на каждой линии.<br><br>
+        <strong>3. GPIO 34–39:</strong> Эти пины только на вход (input only), не имеют внутренних подтяжек. При использовании кнопок нужны внешние подтягивающие резисторы.<br><br>
+        <strong>4. Nextion vs ILI9341:</strong> Используется только один тип дисплея за раз. При использовании ILI9341 пины 32/33 для Nextion не заняты (GPIO 33 используется для WS2812B).<br><br>
+        <strong>5. DFPlayer:</strong> Управление осуществляется через Serial (UART0) с динамическим переключением скорости (115200 ↔ 9600 бод).<br><br>
+        <strong>6. Partition Scheme:</strong> No OTA (2MB APP / 2MB SPIFFS/LittleFS).
+    </div>
+</div>
+
+<footer>
+    Weather Monitor BIM32 v4.0 · © himikat123@gmail.com · Nürnberg, Deutschland, 2020–2024<br>
+    Таблица соединений создана автоматически на основе исходного кода проекта
+</footer>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ Распечатать</button>
+
+</body>
+</html>
